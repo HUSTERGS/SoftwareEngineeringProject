@@ -18,15 +18,15 @@
 
 ## 9.10
 
-注册，安装github
+注册，安装github =>
 
-熟悉modao
+熟悉modao 
 
 下载安装AS
 
 github follow
 
-
+git 基本操作
 
 分工：
 
