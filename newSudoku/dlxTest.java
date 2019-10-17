@@ -28,7 +28,7 @@ public class dlxTest {
 //            System.out.println("Invalid sudoku!");
 //        }
 
-        GenerateBoard newBoard = new GenerateBoard(4,2);
+        GenerateBoard newBoard = new GenerateBoard(9,3);
         // 初始化一个棋盘,最开始随机放置了INITNUM个数字,然后开始解这个棋盘来得到终局,可以通过多次init来得到不同的终局
         newBoard.initBoard();
         // 开始挖洞,level参数为挖掉的数目

@@ -1,5 +1,8 @@
-package dlx;
+package com.example.sudoku.dlx;
 
+import android.annotation.TargetApi;
+
+import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -81,7 +84,7 @@ public class GenerateBoard {
             }
         }
     }
-
+    @TargetApi(24)
     private void dig() {
         List<Integer> positions = IntStream.range(0, S * S)
                 .boxed().collect(Collectors.toList());
