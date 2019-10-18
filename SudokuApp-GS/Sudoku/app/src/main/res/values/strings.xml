@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Sudoku</string>
+    <string name="restore">Undo</string>
+    <string name="erase">Erase</string>
+    <string name="note">Note</string>
+    <string name="count">Count Down</string>
+    <string name="correctOn">开启纠错</string>
+    <string name="colorOn">开启颜色</string>
 </resources>
