@@ -16,6 +16,7 @@ import android.widget.CompoundButton;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,11 +28,13 @@ import com.example.sudoku.UserAction.UserAction;
 import com.example.sudoku.dlx.GenerateBoard;
 import com.example.sudoku.dlx.SudokuDLX;
 
+import org.w3c.dom.Text;
+
 import java.util.Stack;
 
 
 public class SudokuNine extends AppCompatActivity {
-    private static int dp2px(int dp, Context context) {
+    public static int dp2px(int dp, Context context) {
         float density = context.getResources().getDisplayMetrics().density;
         return Math.round((float) dp * density);
     }
@@ -42,10 +45,12 @@ public class SudokuNine extends AppCompatActivity {
     private boolean showColor;
     private boolean showhint;
     private boolean paused;
+    private boolean takingNote;
     private long timeWhenStopped;
     private int[][] originBoard;
     private int[][] anwserBoard;
     private int[][] currentBoard;
+
 
     private Stack<UserAction> userActionStack = new Stack<>();
     // 暂停的时候禁止大部分的按钮
@@ -71,6 +76,20 @@ public class SudokuNine extends AppCompatActivity {
         eraseButton.setEnabled(!disable);
         note.setEnabled(!disable);
     }
+
+    private void updateOptionBackground(GridLayout options, SudokuGrid sudokuGrid) {
+        for (int i = 0; i < options.getChildCount(); i++) {
+            if (takingNote == false) {
+                options.getChildAt(i).setBackgroundResource(R.drawable.border_selected);
+            } else {
+                TextView textView = sudokuGrid == null ? null : (TextView) sudokuGrid.getChildAt(i);
+                options.getChildAt(i).setBackgroundResource(
+                        textView == null || textView.getText().toString() == "" ?
+                                R.drawable.border : R.drawable.border_selected);
+            }
+        }
+    }
+
     // 检查单个TextView是否正确
     private boolean checkSingle(SudokuTextView textView) {
         int row = selected.getRow();
@@ -94,7 +113,8 @@ public class SudokuNine extends AppCompatActivity {
         for (int r = 0; r < 9; r++) {
             for (int c = 0; c < 9; c++) {
                 if (currentBoard[r][c] != 0 && anwserBoard[r][c] != currentBoard[r][c]) {
-                    gridLayout.getChildAt(r * 9 + c).setBackgroundResource(R.drawable.wrong_box);
+                    RelativeLayout relativeLayout = (RelativeLayout) gridLayout.getChildAt(r * 9 + c);
+                    relativeLayout.getChildAt(0).setBackgroundResource(R.drawable.wrong_box);
                 }
             }
         }
@@ -104,7 +124,8 @@ public class SudokuNine extends AppCompatActivity {
         for (int r = 0; r < 9; r++) {
             for (int c = 0; c < 9; c++) {
                 if (anwserBoard[r][c] != currentBoard[r][c]) {
-                    gridLayout.getChildAt(r * 9 + c).setBackgroundResource(R.drawable.border);
+                    RelativeLayout relativeLayout = (RelativeLayout) gridLayout.getChildAt(r * 9 + c);
+                    relativeLayout.getChildAt(0).setBackgroundResource(R.drawable.border);
                 }
             }
         }
@@ -119,23 +140,30 @@ public class SudokuNine extends AppCompatActivity {
         }
 
         int targetStyle = showColor ? R.drawable.focus : R.drawable.border;
-
+        RelativeLayout relativeLayout = null;
         for (int i = 0; i < 9; i++) {
             // 同一列
             positionRow = i * 9 + column;
             // 同一行
             positionCol = i + 9 * row;
-            gridLayout.getChildAt(positionRow).setBackgroundResource(targetStyle);
-            gridLayout.getChildAt(positionCol).setBackgroundResource(targetStyle);
+            relativeLayout = (RelativeLayout) gridLayout.getChildAt(positionRow);
+            relativeLayout.getChildAt(0).setBackgroundResource(targetStyle);
+            relativeLayout = (RelativeLayout) gridLayout.getChildAt(positionCol);
+            relativeLayout.getChildAt(0).setBackgroundResource(targetStyle);
+//            gridLayout.getChildAt(positionRow).setBackgroundResource(targetStyle);
+//            gridLayout.getChildAt(positionCol).setBackgroundResource(targetStyle);
         }
         // 同一个小方格
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 positionCol = (i + (column / 3) * 3) + (j + (row / 3) * 3) * 9;
-                gridLayout.getChildAt(positionCol).setBackgroundResource(targetStyle);
+                relativeLayout = (RelativeLayout) gridLayout.getChildAt(positionCol);
+                relativeLayout.getChildAt(0).setBackgroundResource(targetStyle);
             }
         }
-        gridLayout.getChildAt(row * 9 + column).setBackgroundResource(R.drawable.border_selected);
+        relativeLayout = (RelativeLayout) gridLayout.getChildAt(row * 9 + column);
+        relativeLayout.getChildAt(0).setBackgroundResource(R.drawable.border_selected);
+//        gridLayout.getChildAt(row * 9 + column).setBackgroundResource(R.drawable.border_selected);
 
         if (showhint) {
             showWrong(gridLayout);
@@ -145,19 +173,24 @@ public class SudokuNine extends AppCompatActivity {
     private void unfocus(int column, int row, GridLayout gridLayout) {
         int positionCol;
         int positionRow;
+        RelativeLayout relativeLayout = null;
         for (int i = 0; i < 9; i++) {
             // 同一列
             positionRow = i * 9 + column;
             // 同一行
             positionCol = i + 9 * row;
-            gridLayout.getChildAt(positionRow).setBackgroundResource(R.drawable.border);
-            gridLayout.getChildAt(positionCol).setBackgroundResource(R.drawable.border);
+            relativeLayout = (RelativeLayout) gridLayout.getChildAt(positionRow);
+            relativeLayout.getChildAt(0).setBackgroundResource(R.drawable.border);
+            relativeLayout = (RelativeLayout) gridLayout.getChildAt(positionCol);
+            relativeLayout.getChildAt(0).setBackgroundResource(R.drawable.border);
         }
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 positionCol = (i + (column / 3) * 3) + (j + (row / 3) * 3) * 9;
-                gridLayout.getChildAt(positionCol).setBackgroundResource(R.drawable.border);
+                relativeLayout = (RelativeLayout) gridLayout.getChildAt(positionCol);
+                relativeLayout.getChildAt(0).setBackgroundResource(R.drawable.border);
+//                gridLayout.getChildAt(positionCol).setBackgroundResource(R.drawable.border);
             }
         }
     }
@@ -179,15 +212,16 @@ public class SudokuNine extends AppCompatActivity {
 
         GridLayout gridLayout = findViewById(R.id.nine_grid);
         GridLayout options = findViewById(R.id.nine_options);
+
         // 插入81个 TextView
         for (int r = 0; r < 9; r++) {
             for (int c = 0; c < 9; c++) {
 
                 SudokuTextView textView = new SudokuTextView(gridLayout.getContext(), c, r);
                 if (board.board[r][c] != 0) {
+                    // 已经给出的位置
                     textView.setText(Integer.toString(board.board[r][c]));
                     textView.setTypeface(null, Typeface.BOLD);
-
                     textView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -196,10 +230,11 @@ public class SudokuNine extends AppCompatActivity {
                                 unfocus(selected.getColumn(), selected.getRow(), gridLayout);
                             }
                             selected = null;
+                            updateOptionBackground(options, null);
                         }
                     });
-
                 } else {
+                    // 待填入的位置
                     textView.setTextColor(Color.parseColor("#0066FF"));
                     textView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -211,34 +246,53 @@ public class SudokuNine extends AppCompatActivity {
                             v.setBackgroundResource(R.drawable.border_selected);
                             selected = (SudokuTextView) v;
                             focus(selected.getColumn(), selected.getRow(), gridLayout);
+
+                            RelativeLayout relativeLayout = (RelativeLayout) gridLayout
+                                    .getChildAt(selected.getRow() * 9 + selected.getColumn());
+                            SudokuGrid sudokuGrid = (SudokuGrid) relativeLayout.getChildAt(1);
+                            updateOptionBackground(options, sudokuGrid);
                         }
                     });
                     textView.setText("");
                 }
-                textView.setTextSize(25);
+                textView.setTextSize(20);
                 textView.setGravity(Gravity.CENTER);
                 LinearLayout.LayoutParams layoutParams = new LinearLayout
                         .LayoutParams(dp2px(35, this)
                         , dp2px(35, this));
 
-                layoutParams.setMargins(8, 8, 8, 8);
+                layoutParams.setMargins(5, 5, 5, 5);
+                layoutParams.gravity = Gravity.CENTER;
                 textView.setLayoutParams(layoutParams);
                 textView.setBackgroundResource(R.drawable.border);
                 textView.setCursorVisible(false);
-                gridLayout.addView(textView);
+                RelativeLayout relativeLayout = new RelativeLayout(getApplicationContext());
+                relativeLayout.addView(textView);
+                RelativeLayout.LayoutParams relativeParams = new RelativeLayout.LayoutParams(dp2px(35, this)
+                        , dp2px(35, this));
+                relativeLayout.setGravity(Gravity.CENTER);
+                relativeLayout.setLayoutParams(relativeParams);
+                relativeLayout.addView(new SudokuGrid(getApplicationContext()));
+//                LinearLayout.LayoutParams gravityParams =
+//                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+//                                LinearLayout.LayoutParams.WRAP_CONTENT);
+//                gravityParams.gravity = Gravity.CENTER;
+//                gridLayout.setLayoutParams(gravityParams);
+                gridLayout.addView(relativeLayout);
             }
         }
         // 插入9个选择的
         for (int num = 1; num <= 9; num++) {
             TextView textView = new TextView(gridLayout.getContext());
             textView.setText(Integer.toString(num));
-            textView.setTextSize(25);
+            textView.setTextSize(20);
             textView.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams layoutParams = new LinearLayout
-                    .LayoutParams(dp2px(35, this)
-                    , dp2px(35, this));
+                    .LayoutParams(dp2px(30, this)
+                    , dp2px(30, this));
 
-            layoutParams.setMargins(8, 8, 8, 8);
+            layoutParams.setMargins(5, 5, 5, 5);
+            layoutParams.gravity = Gravity.CENTER;
             textView.setLayoutParams(layoutParams);
             textView.setBackgroundResource(R.drawable.option_background);
             textView.setCursorVisible(false);
@@ -248,21 +302,39 @@ public class SudokuNine extends AppCompatActivity {
                 public void onClick(View v) {
                     if (selected != null) {
                         TextView that = (TextView) v;
-                        if (selected.getText().toString() == "") {
-                            userActionStack.push(new EnterAction(selected.getColumn(),
-                                    selected.getRow(),
-                                    Integer.parseInt(that.getText().toString()), 9));
-                        } else if (selected.getText().toString() != that.getText().toString()) {
-                            // 不重复记录
-                            userActionStack.push(new ReplaceAction(selected.getColumn(),
-                                    selected.getRow(),
-                                    Integer.parseInt(selected.getText().toString()),
-                                    Integer.parseInt(that.getText().toString()), 9));
+                        if (takingNote) {
+                            if (selected != null) {
+                                RelativeLayout relativeLayout = (RelativeLayout) gridLayout
+                                        .getChildAt(selected.getRow() * 9 + selected.getColumn());
+                                SudokuGrid sudokuGrid = (SudokuGrid) relativeLayout.getChildAt(1);
+                                int i = Integer.parseInt(that.getText().toString());
+
+                                TextView target = (TextView) sudokuGrid.getChildAt(i - 1);
+                                if (target.getText().toString() != ""){
+                                    target.setText("");
+                                    v.setBackgroundResource(R.drawable.border);
+                                } else {
+                                    target.setText(Integer.toString(i));
+                                    v.setBackgroundResource(R.drawable.border_selected);
+                                }
+                            }
+                        } else {
+                            if (selected.getText().toString() == "") {
+                                userActionStack.push(new EnterAction(selected.getColumn(),
+                                        selected.getRow(),
+                                        Integer.parseInt(that.getText().toString()), 9));
+                            } else if (selected.getText().toString() != that.getText().toString()) {
+                                // 不重复记录
+                                userActionStack.push(new ReplaceAction(selected.getColumn(),
+                                        selected.getRow(),
+                                        Integer.parseInt(selected.getText().toString()),
+                                        Integer.parseInt(that.getText().toString()), 9));
+                            }
+                            selected.setText(that.getText().toString());
+                            currentBoard[selected.getRow()][selected.getColumn()] =
+                                    Integer.parseInt(selected.getText().toString());
+                            selected.callOnClick();
                         }
-                        selected.setText(that.getText().toString());
-                        currentBoard[selected.getRow()][selected.getColumn()] =
-                                Integer.parseInt(selected.getText().toString());
-                        selected.callOnClick();
                     }
                 }
             });
@@ -312,6 +384,37 @@ public class SudokuNine extends AppCompatActivity {
             }
         });
 
+
+        // 做笔记监听
+        ImageButton note = findViewById(R.id.note);
+        note.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //
+                ImageButton imageButton = (ImageButton) v;
+
+                Animation rotateAnimation = AnimationUtils.loadAnimation(getApplicationContext(),
+                        R.anim.scalenote);
+                v.startAnimation(rotateAnimation);
+                if (takingNote) {
+                    imageButton.setColorFilter(Color.argb(255, 0,0,0));
+                } else {
+                    imageButton.setColorFilter(Color.parseColor("#99ccff"));
+                }
+                takingNote = !takingNote;
+                if (selected != null) {
+                    RelativeLayout relativeLayout = (RelativeLayout) gridLayout
+                            .getChildAt(selected.getRow() * 9 + selected.getColumn());
+                    SudokuGrid sudokuGrid = (SudokuGrid) relativeLayout.getChildAt(1);
+                    updateOptionBackground(options, sudokuGrid);
+                } else {
+                    updateOptionBackground(options, null);
+                }
+
+            }
+        });
+
+
         // Correct switch 点击监听
         Switch correctSwitch = findViewById(R.id.correctSwitch);
         correctSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -337,7 +440,8 @@ public class SudokuNine extends AppCompatActivity {
                     v.startAnimation(rotateAnimation);
                     UserAction action = userActionStack.pop();
                     action.undo(gridLayout, currentBoard);
-                    gridLayout.getChildAt(action.getIndex()).callOnClick();
+                    RelativeLayout temp = (RelativeLayout) gridLayout.getChildAt(action.getIndex());
+                    temp.getChildAt(0).callOnClick();
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "已经回到最开始了哦",

@@ -1,7 +1,9 @@
 package com.example.sudoku.UserAction;
 
 import android.widget.GridLayout;
+import android.widget.RelativeLayout;
 
+import com.example.sudoku.SudokuNine;
 import com.example.sudoku.SudokuTextView;
 
 abstract public class UserAction {
@@ -30,7 +32,9 @@ abstract public class UserAction {
         this.size = size;
     }
     public void undo(GridLayout gridLayout, int[][] currentBoard){
-        undoAction((SudokuTextView) gridLayout.getChildAt(row * size + column), currentBoard);
+        RelativeLayout relativeLayout = (RelativeLayout) gridLayout.getChildAt(row * size + column);
+//        undoAction((SudokuTextView) gridLayout.getChildAt(row * size + column), currentBoard);
+        undoAction((SudokuTextView) relativeLayout.getChildAt(0), currentBoard);
     }
     abstract void undoAction(SudokuTextView textView, int[][] currentBoard);
 }
