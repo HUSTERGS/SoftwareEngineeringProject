@@ -1,14 +1,17 @@
 package com.example.sudoku.dlx;
 
 import android.annotation.TargetApi;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 
-import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Random;
+
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class GenerateBoard {
+public class GenerateBoard implements Runnable{
     public int[][] board;
     public int[][] anwser;
     private final int INITNUM;
@@ -16,10 +19,12 @@ public class GenerateBoard {
     public int actualLevel;
     private int S;
     private int side;
-
-    public GenerateBoard(int gridLength, int side) {
+    private Handler handler;
+    public GenerateBoard(int gridLength, int level, Handler handler) {
+        this.handler = handler;
+        this.level = level;
         this.S = gridLength;
-        this.side = side;
+        this.side = (int) Math.sqrt(gridLength);
         if (S == 9) {
             INITNUM = 30;
         } else {
@@ -42,17 +47,22 @@ public class GenerateBoard {
         printBoard(board);
     }
 
-
-    public void run(int level) {
+    @Override
+    public void run() {
+        Log.d("开始创建", "run: 开始创建");
+        initBoard();
         if (level > S * S) {
             System.out.println("臣妾做不到啊~");
             return;
         }
-        this.level = level;
         while(actualLevel != level) {
             initBoard();
             dig();
         }
+        Log.d("创建完成", "run: 完成");
+        Message message = new Message();
+        message.obj = this;
+        handler.sendMessage(message);
     }
 
     // 根据初始局解出任意一个终局
