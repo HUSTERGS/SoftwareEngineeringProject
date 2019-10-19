@@ -38,7 +38,7 @@ import com.example.sudoku.dlx.SudokuDLX;
 import java.util.Stack;
 
 
-public class SudokuNine extends AppCompatActivity{
+public class SudokuFour extends AppCompatActivity{
     public static int dp2px(int dp, Context context) {
         float density = context.getResources().getDisplayMetrics().density;
         return Math.round((float) dp * density);
@@ -55,8 +55,8 @@ public class SudokuNine extends AppCompatActivity{
     private int[][] originBoard;
     private int[][] anwserBoard;
     private int[][] currentBoard;
-    private int S = 9;
-    private int side = 3;
+    private int S = 4;
+    private int side = 2;
     private int level;
     // 用户操作栈
     private Stack<UserAction> userActionStack = new Stack<>();
@@ -272,13 +272,16 @@ public class SudokuNine extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 初始化数独
-        setContentView(R.layout.activity_sudoku_nine);
+        setContentView(R.layout.activity_sudoku_four);
+
         Intent intent = getIntent();
-        this.level = intent.getIntExtra("level", 40);
+        this.level = intent.getIntExtra("level", 10);
+
+
         dialog = ProgressDialog.show(this, "",
                 "正在生成数独，请稍等", true);
 
-        Log.d("传入的参数为", "onCreate: "+ level);
+
 //        GenerateBoard board = new GenerateBoard(S, 20);
 //        board.run();
         // 复制三个Board
@@ -297,11 +300,11 @@ public class SudokuNine extends AppCompatActivity{
             for (int c = 0; c < S; c++) {
 
                 SudokuTextView textView = new SudokuTextView(gridLayout.getContext(), c, r);
-                textView.setTextSize(20);
+                textView.setTextSize(40);
                 textView.setGravity(Gravity.CENTER);
                 LinearLayout.LayoutParams layoutParams = new LinearLayout
-                        .LayoutParams(dp2px(35, this)
-                        , dp2px(35, this));
+                        .LayoutParams(dp2px(70, this)
+                        , dp2px(70, this));
 
                 layoutParams.setMargins(5, 5, 5, 5);
                 layoutParams.gravity = Gravity.CENTER;
@@ -310,8 +313,8 @@ public class SudokuNine extends AppCompatActivity{
                 textView.setCursorVisible(false);
                 RelativeLayout relativeLayout = new RelativeLayout(getApplicationContext());
                 relativeLayout.addView(textView);
-                RelativeLayout.LayoutParams relativeParams = new RelativeLayout.LayoutParams(dp2px(35, this)
-                        , dp2px(35, this));
+                RelativeLayout.LayoutParams relativeParams = new RelativeLayout.LayoutParams(dp2px(70, this)
+                        , dp2px(70, this));
                 relativeLayout.setGravity(Gravity.CENTER);
                 relativeLayout.setLayoutParams(relativeParams);
                 relativeLayout.addView(new SudokuGrid(getApplicationContext(), S));
@@ -327,11 +330,11 @@ public class SudokuNine extends AppCompatActivity{
         for (int num = 1; num <= S; num++) {
             TextView textView = new TextView(gridLayout.getContext());
             textView.setText(Integer.toString(num));
-            textView.setTextSize(20);
+            textView.setTextSize(40);
             textView.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams layoutParams = new LinearLayout
-                    .LayoutParams(dp2px(30, this)
-                    , dp2px(30, this));
+                    .LayoutParams(dp2px(70, this)
+                    , dp2px(70, this));
 
             layoutParams.setMargins(5, 5, 5, 5);
             layoutParams.gravity = Gravity.CENTER;

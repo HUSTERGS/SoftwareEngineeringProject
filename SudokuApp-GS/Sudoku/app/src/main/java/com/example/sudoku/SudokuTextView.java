@@ -40,22 +40,6 @@ public class SudokuTextView extends AppCompatTextView {
 
     public SudokuTextView(Context context, int column, int row) {
         super(context);
-//        GridLayout gridLayout = new GridLayout(getContext(), null);
-//        gridLayout.setColumnCount(3);
-//        gridLayout.setRowCount(3);
-//        LinearLayout.LayoutParams layoutParams = new LinearLayout
-//                .LayoutParams(SudokuNine.dp2px(1, getContext())
-//                , SudokuNine.dp2px(1, getContext()));
-//
-//        gridLayout.setForegroundGravity(Gravity.CENTER);
-//        for (int i = 1; i <= 9; i++) {
-//            TextView textView = new TextView(getContext());
-//            textView.setLayoutParams(layoutParams);
-//            textView.setText(Integer.toString(i));
-//            textView.setTextSize(1);
-//            textView.setLineSpacing(-1, new Float(0.5));
-//            gridLayout.addView(textView);
-//        }
         this.column = column;
         this.row = row;
     }

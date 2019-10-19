@@ -49,7 +49,6 @@ public class GenerateBoard implements Runnable{
 
     @Override
     public void run() {
-        Log.d("开始创建", "run: 开始创建");
         initBoard();
         if (level > S * S) {
             System.out.println("臣妾做不到啊~");
@@ -59,7 +58,6 @@ public class GenerateBoard implements Runnable{
             initBoard();
             dig();
         }
-        Log.d("创建完成", "run: 完成");
         Message message = new Message();
         message.obj = this;
         handler.sendMessage(message);
