@@ -11,4 +11,8 @@
     <string name="hard">困难</string>
     <string name="devil">极难</string>
     <string name="chooseLevel">选择难度</string>
+    <string name="chooseType">选择模式</string>
+    <string name="typeFour">四宫</string>
+    <string name="typeNine">九宫</string>
+    <string name="resumeLast">继续上一次</string>
 </resources>

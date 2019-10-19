@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.location.GnssMeasurementsEvent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,7 +35,10 @@ import com.example.sudoku.dlx.GenerateBoard;
 import com.example.sudoku.dlx.SudokuDLX;
 
 
+import org.litepal.LitePal;
+import org.w3c.dom.Text;
 
+import java.util.List;
 import java.util.Stack;
 
 
@@ -48,16 +52,19 @@ public class SudokuNine extends AppCompatActivity{
 
     private SudokuTextView selected;
     private boolean showColor;
-    private boolean showhint;
+    private boolean showHint;
     private boolean paused;
     private boolean takingNote;
     private long timeWhenStopped;
     private int[][] originBoard;
     private int[][] anwserBoard;
     private int[][] currentBoard;
+    private int[][][] noteMatrix = new int[9][9][9];
     private int S = 9;
     private int side = 3;
     private int level;
+    private int fontSize;
+    private int boxSize;
     // 用户操作栈
     private Stack<UserAction> userActionStack = new Stack<>();
 
@@ -71,53 +78,7 @@ public class SudokuNine extends AppCompatActivity{
             SudokuDLX.copyBoard(board.anwser, anwserBoard);
             SudokuDLX.copyBoard(board.board, originBoard);
             SudokuDLX.copyBoard(board.board, currentBoard);
-
-            GridLayout gridLayout = findViewById(R.id.nine_grid);
-            GridLayout options = findViewById(R.id.nine_options);
-
-            for (int r = 0; r < S; r++) {
-                for (int c = 0; c < S; c++) {
-                    RelativeLayout box = (RelativeLayout) gridLayout.getChildAt(r * S + c);
-                    SudokuTextView textView = (SudokuTextView) box.getChildAt(0);
-                    if (board.board[r][c] != 0) {
-                        // 已经给出的位置
-                        textView.setText(Integer.toString(board.board[r][c]));
-                        textView.setTypeface(null, Typeface.BOLD);
-                        textView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // 如果用户点击了最开始生成的数字,则将selected设置为null
-                                if (selected != null) {
-                                    unfocus(selected.getColumn(), selected.getRow(), gridLayout);
-                                }
-                                selected = null;
-                                updateOptionBackground(options, null);
-                            }
-                        });
-                    } else {
-                        // 待填入的位置
-                        textView.setTextColor(Color.parseColor("#0066FF"));
-                        textView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // 如果用户点击的和当前选中的不是同一个方格
-                                if (selected != null && !selected.equals(v)) {
-                                    unfocus(selected.getColumn(), selected.getRow(), gridLayout);
-                                }
-                                v.setBackgroundResource(R.drawable.border_selected);
-                                selected = (SudokuTextView) v;
-                                focus(selected.getColumn(), selected.getRow(), gridLayout);
-
-                                RelativeLayout relativeLayout = (RelativeLayout) gridLayout
-                                        .getChildAt(selected.getRow() * S + selected.getColumn());
-                                SudokuGrid sudokuGrid = (SudokuGrid) relativeLayout.getChildAt(1);
-                                updateOptionBackground(options, sudokuGrid);
-                            }
-                        });
-                        textView.setText("");
-                    }
-                }
-            }
+            enterInitNum();
             Chronometer chronometer = findViewById(R.id.timer);
 //            chronometer.setBase(SystemClock.elapsedRealtime());
             dialog.cancel();
@@ -125,7 +86,112 @@ public class SudokuNine extends AppCompatActivity{
         }
     };
 
+    // 填入上一次的数独初始布局
+    private void enterInitNum() {
+        GridLayout gridLayout = findViewById(R.id.nine_grid);
+        GridLayout options = findViewById(R.id.nine_options);
 
+        for (int r = 0; r < S; r++) {
+            for (int c = 0; c < S; c++) {
+                RelativeLayout box = (RelativeLayout) gridLayout.getChildAt(r * S + c);
+                SudokuTextView textView = (SudokuTextView) box.getChildAt(0);
+                if (originBoard[r][c] != 0) {
+                    // 已经给出的位置
+                    textView.setText(Integer.toString(originBoard[r][c]));
+                    textView.setTypeface(null, Typeface.BOLD);
+                    textView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // 如果用户点击了最开始生成的数字,则将selected设置为null
+                            if (selected != null) {
+                                unfocus(selected.getColumn(), selected.getRow(), gridLayout);
+                            }
+                            selected = null;
+                            updateOptionBackground(options, null);
+                        }
+                    });
+                } else {
+                    // 待填入的位置
+                    textView.setTextColor(Color.parseColor("#0066FF"));
+                    textView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // 如果用户点击的和当前选中的不是同一个方格
+                            if (selected != null && !selected.equals(v)) {
+                                unfocus(selected.getColumn(), selected.getRow(), gridLayout);
+                            }
+                            v.setBackgroundResource(R.drawable.border_selected);
+                            selected = (SudokuTextView) v;
+                            focus(selected.getColumn(), selected.getRow(), gridLayout);
+
+                            RelativeLayout relativeLayout = (RelativeLayout) gridLayout
+                                    .getChildAt(selected.getRow() * S + selected.getColumn());
+                            SudokuGrid sudokuGrid = (SudokuGrid) relativeLayout.getChildAt(1);
+                            updateOptionBackground(options, sudokuGrid);
+                        }
+                    });
+                    textView.setText("");
+                }
+            }
+        }
+    }
+    // 填入上一次用户填入的数字
+    private void enterHistoryNum() {
+        GridLayout gridLayout = findViewById(R.id.nine_grid);
+        GridLayout options = findViewById(R.id.nine_options);
+
+        for (int r = 0; r < S; r++) {
+            for (int c = 0; c < S; c++) {
+                RelativeLayout box = (RelativeLayout) gridLayout.getChildAt(r * S + c);
+                SudokuTextView textView = (SudokuTextView) box.getChildAt(0);
+                if (originBoard[r][c] == 0 && currentBoard[r][c] != 0) {
+                    textView.setText(Integer.toString(currentBoard[r][c]));
+                }
+            }
+        }
+    }
+    // 填入用户上一次输入的笔记
+    private void enterHistoryNote() {
+        GridLayout gridLayout = findViewById(R.id.nine_grid);
+        for (int r = 0; r < S; r++) {
+            for (int c = 0; c < S; c++) {
+                RelativeLayout box = (RelativeLayout) gridLayout.getChildAt(r * S + c);
+                GridLayout subgrid = (GridLayout) box.getChildAt(1);
+                for (int i = 0; i < subgrid.getChildCount(); i++) {
+                    if (noteMatrix[c][r][i] != 0) {
+                        TextView subTextView = (TextView) subgrid.getChildAt(i);
+                        subTextView.setText(Integer.toString(noteMatrix[c][r][i]));
+                    }
+                }
+            }
+        }
+    }
+    // 恢复上一次的数据
+    private void resumeLastRecord() {
+        List<LastRecord> records = LitePal.findAll(LastRecord.class);
+        LastRecord lastRecord = records.get(0);
+
+        // 初始棋局
+        this.originBoard = GenerateBoard.boardFromString(lastRecord.getOrigin(), S);
+        enterInitNum();
+        // 答案棋局
+        this.anwserBoard = GenerateBoard.boardFromString(lastRecord.getAnwser(), S);
+        // 当前棋局
+        this.currentBoard = GenerateBoard.boardFromString(lastRecord.getCurrent(), S);
+        enterHistoryNum();
+        // 之前的笔记
+        this.noteMatrix = GenerateBoard.noteFromString(lastRecord.getNote(), S);
+        enterHistoryNote();
+
+        this.showColor = lastRecord.getShowColor() == 1;
+        this.showHint = lastRecord.getshowHint() == 1;
+        this.timeWhenStopped = lastRecord.getusedTime();
+        this.level = lastRecord.getLevel();
+        Chronometer chronometer = findViewById(R.id.timer);
+        chronometer.setBase(SystemClock.elapsedRealtime() + timeWhenStopped);
+        dialog.cancel();
+        chronometer.start();
+    }
     // 暂停的时候禁止大部分的按钮
     private void disableAllButton(boolean disable) {
         GridLayout options = findViewById(R.id.nine_options);
@@ -149,7 +215,7 @@ public class SudokuNine extends AppCompatActivity{
         eraseButton.setEnabled(!disable);
         note.setEnabled(!disable);
     }
-
+    // 更新选择数字栏的背景
     private void updateOptionBackground(GridLayout options, SudokuGrid sudokuGrid) {
         for (int i = 0; i < options.getChildCount(); i++) {
             if (takingNote == false) {
@@ -162,7 +228,6 @@ public class SudokuNine extends AppCompatActivity{
             }
         }
     }
-
     // 检查单个TextView是否正确
     private boolean checkSingle(SudokuTextView textView) {
         int row = selected.getRow();
@@ -203,12 +268,11 @@ public class SudokuNine extends AppCompatActivity{
             }
         }
     }
-
     // 聚焦到某一个方格
     private void focus(int column, int row, GridLayout gridLayout) {
         int positionCol;
         int positionRow;
-        if (!showhint) {
+        if (!showHint) {
             cancelShowWrong(gridLayout);
         }
 
@@ -238,7 +302,7 @@ public class SudokuNine extends AppCompatActivity{
         relativeLayout.getChildAt(0).setBackgroundResource(R.drawable.border_selected);
 //        gridLayout.getChildAt(row * S + column).setBackgroundResource(R.drawable.border_selected);
 
-        if (showhint) {
+        if (showHint) {
             showWrong(gridLayout);
         }
     }
@@ -272,11 +336,20 @@ public class SudokuNine extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 初始化数独
-        setContentView(R.layout.activity_sudoku_nine);
+
         Intent intent = getIntent();
         this.level = intent.getIntExtra("level", 40);
+        this.S = intent.getIntExtra("gridLength", 9);
+        this.side = (int) Math.sqrt(S);
+        fontSize = S == 9? 20 : 40;
+        boxSize = S == 9 ? 35 : 70;
+        setContentView(
+                S == 9?
+                R.layout.activity_sudoku_nine : R.layout.activity_sudoku_four);
         dialog = ProgressDialog.show(this, "",
                 "正在生成数独，请稍等", true);
+
+
 
         Log.d("传入的参数为", "onCreate: "+ level);
 //        GenerateBoard board = new GenerateBoard(S, 20);
@@ -297,11 +370,11 @@ public class SudokuNine extends AppCompatActivity{
             for (int c = 0; c < S; c++) {
 
                 SudokuTextView textView = new SudokuTextView(gridLayout.getContext(), c, r);
-                textView.setTextSize(20);
+                textView.setTextSize(fontSize);
                 textView.setGravity(Gravity.CENTER);
                 LinearLayout.LayoutParams layoutParams = new LinearLayout
-                        .LayoutParams(dp2px(35, this)
-                        , dp2px(35, this));
+                        .LayoutParams(dp2px(boxSize, this)
+                        , dp2px(boxSize, this));
 
                 layoutParams.setMargins(5, 5, 5, 5);
                 layoutParams.gravity = Gravity.CENTER;
@@ -310,8 +383,9 @@ public class SudokuNine extends AppCompatActivity{
                 textView.setCursorVisible(false);
                 RelativeLayout relativeLayout = new RelativeLayout(getApplicationContext());
                 relativeLayout.addView(textView);
-                RelativeLayout.LayoutParams relativeParams = new RelativeLayout.LayoutParams(dp2px(35, this)
-                        , dp2px(35, this));
+                RelativeLayout.LayoutParams relativeParams = new RelativeLayout.LayoutParams(
+                        dp2px(boxSize, this),
+                        dp2px(boxSize, this));
                 relativeLayout.setGravity(Gravity.CENTER);
                 relativeLayout.setLayoutParams(relativeParams);
                 relativeLayout.addView(new SudokuGrid(getApplicationContext(), S));
@@ -327,11 +401,11 @@ public class SudokuNine extends AppCompatActivity{
         for (int num = 1; num <= S; num++) {
             TextView textView = new TextView(gridLayout.getContext());
             textView.setText(Integer.toString(num));
-            textView.setTextSize(20);
+            textView.setTextSize(fontSize);
             textView.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams layoutParams = new LinearLayout
-                    .LayoutParams(dp2px(30, this)
-                    , dp2px(30, this));
+                    .LayoutParams(dp2px(boxSize, this)
+                    , dp2px(boxSize, this));
 
             layoutParams.setMargins(5, 5, 5, 5);
             layoutParams.gravity = Gravity.CENTER;
@@ -354,9 +428,11 @@ public class SudokuNine extends AppCompatActivity{
                                 TextView target = (TextView) sudokuGrid.getChildAt(i - 1);
                                 if (target.getText().toString() != ""){
                                     target.setText("");
+                                    noteMatrix[selected.getRow()][selected.getColumn()][i-1] = 0;
                                     v.setBackgroundResource(R.drawable.border);
                                 } else {
                                     target.setText(Integer.toString(i));
+                                    noteMatrix[selected.getRow()][selected.getColumn()][i-1] = i;
                                     v.setBackgroundResource(R.drawable.border_selected);
                                 }
                             }
@@ -462,7 +538,7 @@ public class SudokuNine extends AppCompatActivity{
         correctSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                showhint = isChecked;
+                showHint = isChecked;
                 if (selected != null) {
                     selected.callOnClick();
                 } else {
@@ -539,7 +615,38 @@ public class SudokuNine extends AppCompatActivity{
             }
         });
 
-        GenerateBoard board = new GenerateBoard(S, level, handler);
-        new Thread(board).start();
+
+        if (intent.getBooleanExtra("resume", false)) {
+            // 如果说是恢复过来的数据的话
+            resumeLastRecord();
+            dialog.cancel();
+        } else {
+            GenerateBoard board = new GenerateBoard(S, level, handler);
+            new Thread(board).start();
+        }
     }
+
+    @Override
+    protected void onUserLeaveHint(){
+        super.onUserLeaveHint();
+        ImageButton pause = findViewById(R.id.pause);
+        pause.callOnClick();
+
+        LastRecord lastRecord = new LastRecord();
+        lastRecord.setAnwser(GenerateBoard.boardToString(anwserBoard));
+        lastRecord.setCurrent(GenerateBoard.boardToString(currentBoard));
+        lastRecord.setLevel(level);
+        lastRecord.setNote(GenerateBoard.noteToString(noteMatrix));
+        lastRecord.setOrigin(GenerateBoard.boardToString(originBoard));
+        lastRecord.setShowColor(showColor ? 1 : 0);
+        lastRecord.setusedTime(timeWhenStopped);
+        lastRecord.setshowHint(showHint ? 1 : 0);
+        lastRecord.setUser("anonymous,");
+        lastRecord.setType(9);
+        lastRecord.save();
+
+        Log.d("已退出", "onUserLeaveHint: 保存成功?");
+    }
+
+
 }

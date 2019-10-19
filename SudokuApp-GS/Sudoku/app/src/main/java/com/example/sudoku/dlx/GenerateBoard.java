@@ -1,6 +1,7 @@
 package com.example.sudoku.dlx;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -20,6 +21,79 @@ public class GenerateBoard implements Runnable{
     private int S;
     private int side;
     private Handler handler;
+
+    public static String boardToString(int[][] board) {
+        StringBuilder stringBuilder = new StringBuilder();
+        int length = board.length;
+        int value;
+        for (int r = 0; r < length; r++) {
+            for (int c = 0; c < length; c++) {
+                value = board[r][c];
+                if (value != 0) {
+                    stringBuilder.append(Integer.toString(value));
+                } else {
+                    stringBuilder.append(".");
+                }
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    public static int[][] boardFromString(String s, int type) {
+        int[][] board = new int[type][type];
+        char value;
+        for (int r = 0; r < type; r++) {
+            for (int c = 0; c < type; c++) {
+                value = s.charAt(r * type + c);
+                if (value != '.') {
+                    board[r][c] = value - '0';
+                } else {
+                    board[r][c] = 0;
+                }
+            }
+        }
+
+        return board;
+    }
+
+    public static String noteToString(int[][][] note) {
+        StringBuilder stringBuilder = new StringBuilder();
+        int length = note.length;
+        int value;
+        for (int r = 0; r < length; r++) {
+            for (int c = 0; c < length; c++) {
+                for (int i = 0; i < length; i++) {
+                    value = note[r][c][i];
+                    if (value != 0) {
+                        stringBuilder.append(Integer.toString(value));
+                    } else {
+                        stringBuilder.append(".");
+                    }
+                }
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    public static int[][][] noteFromString(String s, int type) {
+        int[][][] note = new int[type][type][type];
+        int index;
+        for (int r = 0; r < type; r++) {
+            for (int c = 0; c < type; c++) {
+                for (int i = 0; i < type; i++) {
+                    index = r * type * type + c * type + i;
+                    char item = s.charAt(index);
+                    if (item != '.') {
+                        note[r][c][i] = item - '0';
+                    } else {
+                        note[r][c][i] = 0;
+                    }
+                }
+            }
+        }
+        return note;
+    }
+
     public GenerateBoard(int gridLength, int level, Handler handler) {
         this.handler = handler;
         this.level = level;

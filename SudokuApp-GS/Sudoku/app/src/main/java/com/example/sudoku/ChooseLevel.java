@@ -11,7 +11,6 @@ import android.widget.LinearLayout;
 
 public class ChooseLevel extends AppCompatActivity {
 
-    private int i = 0;
 
     private void disableButtons() {
         LinearLayout easy = (LinearLayout) findViewById(R.id.easylevel);
@@ -28,24 +27,31 @@ public class ChooseLevel extends AppCompatActivity {
         devil.setFocusable(false);
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_level);
+
+        Intent intent = getIntent();
+        int gridLength = intent.getIntExtra("gridLength", 9);
+
         LinearLayout easy = findViewById(R.id.easylevel);
         LinearLayout medium = findViewById(R.id.mediumlevel);
         LinearLayout hard = findViewById(R.id.hardlevel);
         LinearLayout devil = findViewById(R.id.devil_level);
 
         LinearLayout[] layouts = new LinearLayout[]{easy, medium, hard, devil};
-        for (; i < layouts.length; i++) {
-            final int value = i * 10 + 20;
+        for (int i = 0; i < layouts.length; i++) {
+            final int value = gridLength == 9? i * 10 + 20 : i * 3 + 3;
             layouts[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     disableButtons();
                     Intent intent = new Intent(ChooseLevel.this, SudokuNine.class);
                     intent.putExtra("level", value);
+                    intent.putExtra("gridLength", gridLength);
                     startActivity(intent);
                 }
             });
@@ -58,6 +64,7 @@ public class ChooseLevel extends AppCompatActivity {
                         disableButtons();
                         Intent intent = new Intent(ChooseLevel.this, SudokuNine.class);
                         intent.putExtra("level", value);
+                        intent.putExtra("gridLength", gridLength);
                         startActivity(intent);
                     }
                 });
