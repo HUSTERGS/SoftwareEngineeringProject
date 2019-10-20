@@ -184,11 +184,11 @@ public class SudokuNine extends AppCompatActivity{
 
         if (lastRecord.getshowHint() == 1) {
             Switch correctSwitch = findViewById(R.id.correctSwitch);
-            correctSwitch.callOnClick();
+            correctSwitch.setChecked(true);
         }
         if (lastRecord.getShowColor() == 1) {
             Switch colorOn = findViewById(R.id.colorOn);
-            colorOn.callOnClick();
+            colorOn.setChecked(true);
         }
         this.timeWhenStopped = lastRecord.getusedTime();
         this.level = lastRecord.getLevel();

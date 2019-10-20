@@ -73,4 +73,16 @@ public class ChooseType extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MaterialButton resume = (MaterialButton) findViewById(R.id.resume);
+
+        List<LastRecord> record = LitePal.findAll(LastRecord.class);
+        if (record.isEmpty()) {
+//            resume.setClickable(false);
+            resume.setVisibility(View.VISIBLE);
+        }
+    }
 }
