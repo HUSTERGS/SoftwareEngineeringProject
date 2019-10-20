@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         startTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ChooseType.class);
+                Intent intent = new Intent(MainActivity.this, History.class);
 //                intent.putExtra("level", 10);
                 startActivity(intent);
             }

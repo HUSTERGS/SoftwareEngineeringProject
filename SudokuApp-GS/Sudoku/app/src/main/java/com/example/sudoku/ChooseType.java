@@ -29,6 +29,13 @@ public class ChooseType extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ChooseType.this, ChooseLevel.class);
                 intent.putExtra("gridLength", 4);
+
+                List<LastRecord> records = LitePal.findAll(LastRecord.class);
+                if (!records.isEmpty()) {
+                    LastRecord preRecord = records.get(0);
+                    LastRecord.LastToHistory(preRecord).save();
+                    LitePal.deleteAll(LastRecord.class);
+                }
                 startActivity(intent);
             }
         });
@@ -38,18 +45,22 @@ public class ChooseType extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ChooseType.this, ChooseLevel.class);
                 intent.putExtra("gridLength", 9);
+                List<LastRecord> records = LitePal.findAll(LastRecord.class);
+                if (!records.isEmpty()) {
+                    LastRecord preRecord = records.get(0);
+                    LastRecord.LastToHistory(preRecord).save();
+                    LitePal.deleteAll(LastRecord.class);
+                }
                 startActivity(intent);
             }
         });
 
         MaterialButton resume = (MaterialButton) findViewById(R.id.resume);
 
-
         List<LastRecord> record = LitePal.findAll(LastRecord.class);
         if (record.isEmpty()) {
-            resume.setClickable(false);
-        } else {
-            this.lastRecord = record.get(0);
+//            resume.setClickable(false);
+            resume.setVisibility(View.GONE);
         }
 
         resume.setOnClickListener(new View.OnClickListener() {
@@ -57,7 +68,7 @@ public class ChooseType extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ChooseType.this, SudokuNine.class);
                 intent.putExtra("resume", true);
-                intent.putExtra("gridLength", lastRecord.getType());
+                intent.putExtra("gridLength", LitePal.findAll(LastRecord.class).get(0).getType());
                 startActivity(intent);
             }
         });

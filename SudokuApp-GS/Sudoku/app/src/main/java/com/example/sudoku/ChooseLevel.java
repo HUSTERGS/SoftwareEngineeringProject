@@ -36,7 +36,6 @@ public class ChooseLevel extends AppCompatActivity {
 
         Intent intent = getIntent();
         int gridLength = intent.getIntExtra("gridLength", 9);
-
         LinearLayout easy = findViewById(R.id.easylevel);
         LinearLayout medium = findViewById(R.id.mediumlevel);
         LinearLayout hard = findViewById(R.id.hardlevel);

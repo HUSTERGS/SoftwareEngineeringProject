@@ -49,7 +49,6 @@ public class SudokuNine extends AppCompatActivity{
     }
 
 
-
     private SudokuTextView selected;
     private boolean showColor;
     private boolean showHint;
@@ -59,7 +58,7 @@ public class SudokuNine extends AppCompatActivity{
     private int[][] originBoard;
     private int[][] anwserBoard;
     private int[][] currentBoard;
-    private int[][][] noteMatrix = new int[9][9][9];
+    private int[][][] noteMatrix;
     private int S = 9;
     private int side = 3;
     private int level;
@@ -183,8 +182,14 @@ public class SudokuNine extends AppCompatActivity{
         this.noteMatrix = GenerateBoard.noteFromString(lastRecord.getNote(), S);
         enterHistoryNote();
 
-        this.showColor = lastRecord.getShowColor() == 1;
-        this.showHint = lastRecord.getshowHint() == 1;
+        if (lastRecord.getshowHint() == 1) {
+            Switch correctSwitch = findViewById(R.id.correctSwitch);
+            correctSwitch.callOnClick();
+        }
+        if (lastRecord.getShowColor() == 1) {
+            Switch colorOn = findViewById(R.id.colorOn);
+            colorOn.callOnClick();
+        }
         this.timeWhenStopped = lastRecord.getusedTime();
         this.level = lastRecord.getLevel();
         Chronometer chronometer = findViewById(R.id.timer);
@@ -341,6 +346,7 @@ public class SudokuNine extends AppCompatActivity{
         this.level = intent.getIntExtra("level", 40);
         this.S = intent.getIntExtra("gridLength", 9);
         this.side = (int) Math.sqrt(S);
+        this.noteMatrix = new int[S][S][S];
         fontSize = S == 9? 20 : 40;
         boxSize = S == 9 ? 35 : 70;
         setContentView(
@@ -619,7 +625,7 @@ public class SudokuNine extends AppCompatActivity{
         if (intent.getBooleanExtra("resume", false)) {
             // 如果说是恢复过来的数据的话
             resumeLastRecord();
-            dialog.cancel();
+
         } else {
             GenerateBoard board = new GenerateBoard(S, level, handler);
             new Thread(board).start();
@@ -632,6 +638,8 @@ public class SudokuNine extends AppCompatActivity{
         ImageButton pause = findViewById(R.id.pause);
         pause.callOnClick();
 
+        LitePal.deleteAll(LastRecord.class);
+
         LastRecord lastRecord = new LastRecord();
         lastRecord.setAnwser(GenerateBoard.boardToString(anwserBoard));
         lastRecord.setCurrent(GenerateBoard.boardToString(currentBoard));
@@ -642,11 +650,19 @@ public class SudokuNine extends AppCompatActivity{
         lastRecord.setusedTime(timeWhenStopped);
         lastRecord.setshowHint(showHint ? 1 : 0);
         lastRecord.setUser("anonymous,");
-        lastRecord.setType(9);
+        lastRecord.setType(S);
         lastRecord.save();
-
-        Log.d("已退出", "onUserLeaveHint: 保存成功?");
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        onUserLeaveHint();
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        onUserLeaveHint();
+    }
 }

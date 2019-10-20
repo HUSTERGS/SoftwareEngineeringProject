@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChooseType"></activity>
+        <activity android:name=".History"></activity>
+        <activity android:name=".ChooseType" />
         <activity android:name=".ChooseLevel" />
         <activity android:name=".SudokuNine" />
         <activity android:name=".MainActivity">

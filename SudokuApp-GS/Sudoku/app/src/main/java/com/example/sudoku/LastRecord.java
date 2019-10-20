@@ -84,4 +84,20 @@ public class LastRecord extends LitePalSupport {
     public void setNote(String note) {
         this.note = note;
     }
+
+
+    public static GameRecord LastToHistory(LastRecord lastRecord) {
+        GameRecord gameRecord = new GameRecord();
+        gameRecord.setAnwser(lastRecord.getAnwser());
+        gameRecord.setCurrent(lastRecord.getCurrent());
+        gameRecord.setLevel(lastRecord.getLevel());
+        gameRecord.setNote(lastRecord.getNote());
+        gameRecord.setOrigin(lastRecord.getOrigin());
+        gameRecord.setShowColor(lastRecord.getShowColor());
+        gameRecord.setshowHint(lastRecord.getshowHint());
+        gameRecord.setType(lastRecord.getType());
+        gameRecord.setUser(lastRecord.getUser());
+        gameRecord.setusedTime(lastRecord.getusedTime());
+        return gameRecord;
+    }
 }
