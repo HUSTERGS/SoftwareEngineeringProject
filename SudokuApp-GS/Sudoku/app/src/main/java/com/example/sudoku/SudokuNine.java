@@ -610,9 +610,11 @@ public class SudokuNine extends AppCompatActivity{
                         Toast.makeText(getApplicationContext(),
                                 "这个位置已经是正确的哦", Toast.LENGTH_SHORT).show();
                     } else {
+                        note.callOnClick();
                         options.getChildAt(
                                 anwserBoard[selected.getRow()][selected.getColumn()] - 1)
                                 .callOnClick();
+                        note.callOnClick();
                     }
                 } else {
                     Toast.makeText(getApplicationContext(),
