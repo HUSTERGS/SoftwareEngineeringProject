@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.location.GnssMeasurementsEvent;
@@ -167,7 +168,10 @@ public class SudokuNine extends AppCompatActivity{
     }
     // 恢复上一次的数据
     private void resumeLastRecord() {
-        List<LastRecord> records = LitePal.findAll(LastRecord.class);
+        SharedPreferences pref = getSharedPreferences("currentUser", MODE_PRIVATE);
+        String name = pref.getString("name", "");
+
+        List<LastRecord> records = LitePal.where("user = ?", name).find(LastRecord.class);
         LastRecord lastRecord = records.get(0);
 
         // 初始棋局
@@ -640,7 +644,10 @@ public class SudokuNine extends AppCompatActivity{
         ImageButton pause = findViewById(R.id.pause);
         pause.callOnClick();
 
-        LitePal.deleteAll(LastRecord.class);
+
+        SharedPreferences pref = getSharedPreferences("currentUser", MODE_PRIVATE);
+        String name = pref.getString("name", "");
+        LitePal.deleteAll(LastRecord.class, "user = ?", name);
 
         LastRecord lastRecord = new LastRecord();
         lastRecord.setAnwser(GenerateBoard.boardToString(anwserBoard));
@@ -651,7 +658,9 @@ public class SudokuNine extends AppCompatActivity{
         lastRecord.setShowColor(showColor ? 1 : 0);
         lastRecord.setusedTime(timeWhenStopped);
         lastRecord.setshowHint(showHint ? 1 : 0);
-        lastRecord.setUser("anonymous,");
+
+
+        lastRecord.setUser(name);
         lastRecord.setType(S);
         lastRecord.save();
     }

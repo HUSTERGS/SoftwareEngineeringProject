@@ -3,6 +3,7 @@ package com.example.sudoku;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 
@@ -30,11 +31,14 @@ public class ChooseType extends AppCompatActivity {
                 Intent intent = new Intent(ChooseType.this, ChooseLevel.class);
                 intent.putExtra("gridLength", 4);
 
-                List<LastRecord> records = LitePal.findAll(LastRecord.class);
+                SharedPreferences pref = getSharedPreferences("currentUser", MODE_PRIVATE);
+                String name = pref.getString("name", "");
+
+                List<LastRecord> records = LitePal.where("user = ?", name).find(LastRecord.class);
                 if (!records.isEmpty()) {
                     LastRecord preRecord = records.get(0);
                     LastRecord.LastToHistory(preRecord).save();
-                    LitePal.deleteAll(LastRecord.class);
+                    LitePal.deleteAll(LastRecord.class, "user = ?", name);
                 }
                 startActivity(intent);
             }
@@ -45,11 +49,14 @@ public class ChooseType extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ChooseType.this, ChooseLevel.class);
                 intent.putExtra("gridLength", 9);
-                List<LastRecord> records = LitePal.findAll(LastRecord.class);
+                SharedPreferences pref = getSharedPreferences("currentUser", MODE_PRIVATE);
+                String name = pref.getString("name", "");
+
+                List<LastRecord> records = LitePal.where("user = ?", name).find(LastRecord.class);
                 if (!records.isEmpty()) {
                     LastRecord preRecord = records.get(0);
                     LastRecord.LastToHistory(preRecord).save();
-                    LitePal.deleteAll(LastRecord.class);
+                    LitePal.deleteAll(LastRecord.class, "user = ?", name);
                 }
                 startActivity(intent);
             }
@@ -57,7 +64,10 @@ public class ChooseType extends AppCompatActivity {
 
         MaterialButton resume = (MaterialButton) findViewById(R.id.resume);
 
-        List<LastRecord> record = LitePal.findAll(LastRecord.class);
+        SharedPreferences pref = getSharedPreferences("currentUser", MODE_PRIVATE);
+        String name = pref.getString("name", "");
+
+        List<LastRecord> record = LitePal.where("user = ?", name).find(LastRecord.class);
         if (record.isEmpty()) {
 //            resume.setClickable(false);
             resume.setVisibility(View.GONE);
@@ -66,9 +76,12 @@ public class ChooseType extends AppCompatActivity {
         resume.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences pref = getSharedPreferences("currentUser", MODE_PRIVATE);
+                String name = pref.getString("name", "");
+
                 Intent intent = new Intent(ChooseType.this, SudokuNine.class);
                 intent.putExtra("resume", true);
-                intent.putExtra("gridLength", LitePal.findAll(LastRecord.class).get(0).getType());
+                intent.putExtra("gridLength", LitePal.where("user = ?", name).find(LastRecord.class).get(0).getType());
                 startActivity(intent);
             }
         });
@@ -78,8 +91,10 @@ public class ChooseType extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         MaterialButton resume = (MaterialButton) findViewById(R.id.resume);
+        SharedPreferences pref = getSharedPreferences("currentUser", MODE_PRIVATE);
+        String name = pref.getString("name", "");
 
-        List<LastRecord> record = LitePal.findAll(LastRecord.class);
+        List<LastRecord> record = LitePal.where("user = ?", name).find(LastRecord.class);
         if (!record.isEmpty()) {
 //            resume.setClickable(false);
             resume.setVisibility(View.VISIBLE);

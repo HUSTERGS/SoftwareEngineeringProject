@@ -75,7 +75,7 @@ public class HistoryItemAdapter extends RecyclerView.Adapter<HistoryItemAdapter.
         GameRecord gameRecord= mHistory.get(position);
         holder.userText.setText(gameRecord.getUser());
         holder.timeText.setText(formatInterval(-gameRecord.getusedTime()));
-        holder.typeText.setText(Integer.toString(gameRecord.getType()));
+        holder.typeText.setText(gameRecord.getType() == 9 ? "九宫" : "四宫");
         int level = gameRecord.getLevel();
         String[] texts = new String[] {"简单", "中等", "困难", "极难"};
         if (gameRecord.getType() == 9) {

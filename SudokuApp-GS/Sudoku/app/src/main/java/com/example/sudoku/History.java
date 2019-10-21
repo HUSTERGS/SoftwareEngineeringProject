@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import org.litepal.LitePal;
@@ -27,8 +28,11 @@ public class History extends AppCompatActivity {
 
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
+//        LitePal.findAll(GameRecord.class);
+        SharedPreferences pref = getSharedPreferences("currentUser", MODE_PRIVATE);
+        String name = pref.getString("name", "");
 
-        List<GameRecord> gameRecords = LitePal.findAll(GameRecord.class);
+        List<GameRecord> gameRecords = LitePal.where("user = ?", name).find(GameRecord.class);
         Collections.reverse(gameRecords);
         mAdapter = new HistoryItemAdapter(gameRecords);
         recyclerView.setAdapter(mAdapter);
