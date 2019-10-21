@@ -157,9 +157,9 @@ public class SudokuNine extends AppCompatActivity{
                 RelativeLayout box = (RelativeLayout) gridLayout.getChildAt(r * S + c);
                 GridLayout subgrid = (GridLayout) box.getChildAt(1);
                 for (int i = 0; i < subgrid.getChildCount(); i++) {
-                    if (noteMatrix[c][r][i] != 0) {
+                    if (noteMatrix[r][c][i] != 0) {
                         TextView subTextView = (TextView) subgrid.getChildAt(i);
-                        subTextView.setText(Integer.toString(noteMatrix[c][r][i]));
+                        subTextView.setText(Integer.toString(noteMatrix[r][c][i]));
                     }
                 }
             }

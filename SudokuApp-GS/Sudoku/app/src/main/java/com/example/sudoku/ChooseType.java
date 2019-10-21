@@ -80,7 +80,7 @@ public class ChooseType extends AppCompatActivity {
         MaterialButton resume = (MaterialButton) findViewById(R.id.resume);
 
         List<LastRecord> record = LitePal.findAll(LastRecord.class);
-        if (record.isEmpty()) {
+        if (!record.isEmpty()) {
 //            resume.setClickable(false);
             resume.setVisibility(View.VISIBLE);
         }

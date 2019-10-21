@@ -117,6 +117,16 @@ public class GenerateBoard implements Runnable{
         System.out.println("--------------------------");
     }
 
+    public static int correctCount(String origin, String anwser, String current) {
+        int correctNum = 0;
+        for (int i = origin.length() - 1; i >=0; i--) {
+            if (origin.charAt(i) == '.' && anwser.charAt(i) == current.charAt(i)) {
+                correctNum++;
+            }
+        }
+        return correctNum;
+    }
+
     public void printBoard() {
         printBoard(board);
     }

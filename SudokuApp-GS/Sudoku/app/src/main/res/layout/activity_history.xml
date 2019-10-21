@@ -9,6 +9,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/history_recycler_view"
         android:minWidth="300dp"
         android:minHeight="100dp"
         android:scrollbars="vertical"
