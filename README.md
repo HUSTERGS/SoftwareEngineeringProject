@@ -23,7 +23,7 @@
 
 ## 安卓部分
 
-> 速成:joy: ， 主要参考郭霖的[第一行代码](https://book.douban.com/subject/26915433/)，[Google官方文档](https://developer.android.com/)，以及`Material UI`的[文档](https://material.io/develop/android/)
+> 速成， 主要参考郭霖的[第一行代码](https://book.douban.com/subject/26915433/)，[Google官方文档](https://developer.android.com/)，以及`Material UI`的[文档](https://material.io/develop/android/)，由于各种原因，其实真正的开发时间没有很长
 
 储存数据用到了[LitePal](https://github.com/LitePalFramework/LitePal/)、安卓原生提供的本地数据库以及`SP`，由于种种不可抗力，没有实现真正的登录注册功能，只是在本地写了个假的。也没有提供显式的结算按钮，如需结算，请另开一局新的，旧的数据会被储存在历史中，即变相结算？
 
